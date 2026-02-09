@@ -4,13 +4,13 @@
 array_find__0_v0() {
     local array=("${!1}")
     local value=$2
-    index_11=0;
-    for element_10 in "${array[@]}"; do
-        if [ "$([ "_${value}" != "_${element_10}" ]; echo $?)" != 0 ]; then
-            ret_array_find0_v0="${index_11}"
+    index_18=0;
+    for element_17 in "${array[@]}"; do
+        if [ "$([ "_${value}" != "_${element_17}" ]; echo $?)" != 0 ]; then
+            ret_array_find0_v0="${index_18}"
             return 0
         fi
-        (( index_11++ )) || true
+        (( index_18++ )) || true
     done
     ret_array_find0_v0=-1
     return 0
@@ -20,20 +20,20 @@ array_contains__2_v0() {
     local array=("${!1}")
     local value=$2
     array_find__0_v0 array[@] "${value}"
-    result_12="${ret_array_find0_v0}"
-    ret_array_contains2_v0="$(( ${result_12} >= 0 ))"
+    result_19="${ret_array_find0_v0}"
+    ret_array_contains2_v0="$(( ${result_19} >= 0 ))"
     return 0
 }
 
 # We cannot import `bash_version` from `env.ab` because it imports `text.ab` making a circular dependency.
 # This is a workaround to avoid that issue and the import system should be improved in the future.
 bash_version__11_v0() {
-    major_31="$(echo "${BASH_VERSINFO[0]}")"
-    minor_32="$(echo "${BASH_VERSINFO[1]}")"
+    major_38="$(echo "${BASH_VERSINFO[0]}")"
+    minor_39="$(echo "${BASH_VERSINFO[1]}")"
     command_2="$(echo "${BASH_VERSINFO[2]}")"
     __status=$?
-    patch_33="${command_2}"
-    ret_bash_version11_v0=("${major_31}" "${minor_32}" "${patch_33}")
+    patch_40="${command_2}"
+    ret_bash_version11_v0=("${major_38}" "${minor_39}" "${patch_40}")
     return 0
 }
 
@@ -42,7 +42,7 @@ replace__12_v0() {
     local search=$2
     local replace=$3
     # Here we use a command to avoid #646
-    result_30=""
+    result_37=""
     bash_version__11_v0 
     left_comp=("${ret_bash_version11_v0[@]}")
     right_comp=(4 3)
@@ -63,13 +63,13 @@ replace__12_v0() {
         (( "${#left_comp[@]}" == "${#right_comp[@]}" || "${#left_comp[@]}" > "${#right_comp[@]}" )) && echo 1 || echo 0
 )"
     if [ "${comp}" != 0 ]; then
-        result_30="${source//"${search}"/"${replace}"}"
+        result_37="${source//"${search}"/"${replace}"}"
         __status=$?
     else
-        result_30="${source//"${search}"/${replace}}"
+        result_37="${source//"${search}"/${replace}}"
         __status=$?
     fi
-    ret_replace12_v0="${result_30}"
+    ret_replace12_v0="${result_37}"
     return 0
 }
 
@@ -99,10 +99,10 @@ sed_version__14_v0() {
 split__16_v0() {
     local text=$1
     local delimiter=$2
-    result_17=()
-    IFS="${delimiter}" read -rd '' -a result_17 < <(printf %s "$text")
+    result_24=()
+    IFS="${delimiter}" read -rd '' -a result_24 < <(printf %s "$text")
     __status=$?
-    ret_split16_v0=("${result_17[@]}")
+    ret_split16_v0=("${result_24[@]}")
     return 0
 }
 
@@ -148,11 +148,11 @@ match_regex__31_v0() {
     local search=$2
     local extended=$3
     sed_version__14_v0 
-    sed_version_29="${ret_sed_version14_v0}"
+    sed_version_36="${ret_sed_version14_v0}"
     replace__12_v0 "${search}" "/" "\\/"
     search="${ret_replace12_v0}"
-    output_34=""
-    if [ "$(( $(( ${sed_version_29} == ${__SED_VERSION_GNU_1} )) || $(( ${sed_version_29} == ${__SED_VERSION_BUSYBOX_2} )) ))" != 0 ]; then
+    output_41=""
+    if [ "$(( $(( ${sed_version_36} == ${__SED_VERSION_GNU_1} )) || $(( ${sed_version_36} == ${__SED_VERSION_BUSYBOX_2} )) ))" != 0 ]; then
         # '\b' is supported but not in POSIX standards. Disable it
         replace__12_v0 "${search}" "\\b" "\\\\b"
         search="${ret_replace12_v0}"
@@ -160,29 +160,29 @@ match_regex__31_v0() {
     if [ "${extended}" != 0 ]; then
         # GNU sed versions 4.0 through 4.2 support extended regex syntax,
         # but only via the "-r" option
-        if [ "$(( ${sed_version_29} == ${__SED_VERSION_GNU_1} ))" != 0 ]; then
+        if [ "$(( ${sed_version_36} == ${__SED_VERSION_GNU_1} ))" != 0 ]; then
             # '\b' is not in POSIX standards. Disable it
             replace__12_v0 "${search}" "\\b" "\\b"
             search="${ret_replace12_v0}"
             command_8="$(echo "${source}" | sed -r -ne "/${search}/p")"
             __status=$?
-            output_34="${command_8}"
+            output_41="${command_8}"
         else
             command_9="$(echo "${source}" | sed -E -ne "/${search}/p")"
             __status=$?
-            output_34="${command_9}"
+            output_41="${command_9}"
         fi
     else
-        if [ "$(( $(( ${sed_version_29} == ${__SED_VERSION_GNU_1} )) || $(( ${sed_version_29} == ${__SED_VERSION_BUSYBOX_2} )) ))" != 0 ]; then
+        if [ "$(( $(( ${sed_version_36} == ${__SED_VERSION_GNU_1} )) || $(( ${sed_version_36} == ${__SED_VERSION_BUSYBOX_2} )) ))" != 0 ]; then
             # GNU Sed BRE handle \| as a metacharacter, but it is not POSIX standands. Disable it
             replace__12_v0 "${search}" "\\|" "|"
             search="${ret_replace12_v0}"
         fi
         command_10="$(echo "${source}" | sed -ne "/${search}/p")"
         __status=$?
-        output_34="${command_10}"
+        output_41="${command_10}"
     fi
-    if [ "$([ "_${output_34}" == "_" ]; echo $?)" != 0 ]; then
+    if [ "$([ "_${output_41}" == "_" ]; echo $?)" != 0 ]; then
         ret_match_regex31_v0=1
         return 0
     fi
@@ -243,7 +243,7 @@ temp_dir_create__55_v0() {
         ret_temp_dir_create55_v0=''
         return 1
     fi
-    filename_27=""
+    filename_34=""
     is_mac_os_mktemp__54_v0 
     ret_is_mac_os_mktemp54_v0__119_8="${ret_is_mac_os_mktemp54_v0}"
     if [ "${ret_is_mac_os_mktemp54_v0__119_8}" != 0 ]; then
@@ -255,7 +255,7 @@ temp_dir_create__55_v0() {
             ret_temp_dir_create55_v0=''
             return "${__status}"
         fi
-        filename_27="${command_11}"
+        filename_34="${command_11}"
     else
         command_12="$(mktemp -d -p "$TMPDIR" -t "${template}")"
         __status=$?
@@ -263,29 +263,29 @@ temp_dir_create__55_v0() {
             ret_temp_dir_create55_v0=''
             return "${__status}"
         fi
-        filename_27="${command_12}"
+        filename_34="${command_12}"
     fi
-    if [ "$([ "_${filename_27}" != "_" ]; echo $?)" != 0 ]; then
+    if [ "$([ "_${filename_34}" != "_" ]; echo $?)" != 0 ]; then
         echo "Failed to make a temporary directory"
         ret_temp_dir_create55_v0=''
         return 1
     fi
     if [ "${auto_delete}" != 0 ]; then
         if [ "${force_delete}" != 0 ]; then
-            trap 'rm -rf '"${filename_27}"'' EXIT
+            trap 'rm -rf '"${filename_34}"'' EXIT
             __status=$?
             if [ "${__status}" != 0 ]; then
-                echo "Setting auto deletion fails. You must delete temporary dir ${filename_27}."
+                echo "Setting auto deletion fails. You must delete temporary dir ${filename_34}."
             fi
         else
-            trap 'rmdir '"${filename_27}"'' EXIT
+            trap 'rmdir '"${filename_34}"'' EXIT
             __status=$?
             if [ "${__status}" != 0 ]; then
-                echo "Setting auto deletion fails. You must delete temporary dir ${filename_27}."
+                echo "Setting auto deletion fails. You must delete temporary dir ${filename_34}."
             fi
         fi
     fi
-    ret_temp_dir_create55_v0="${filename_27}"
+    ret_temp_dir_create55_v0="${filename_34}"
     return 0
 }
 
@@ -478,13 +478,13 @@ get_os__164_v0() {
         echo "Failed to determine OS type (using \`uname\` command)."
         exit 1
     fi
-    os_type_7="${command_14}"
-    if [ "$([ "_${os_type_7}" != "_Darwin" ]; echo $?)" != 0 ]; then
+    os_type_14="${command_14}"
+    if [ "$([ "_${os_type_14}" != "_Darwin" ]; echo $?)" != 0 ]; then
         ret_get_os164_v0="macos"
         return 0
     fi
-    if [ "$([ "_${os_type_7}" == "_Linux" ]; echo $?)" != 0 ]; then
-        echo "Unsupported OS type: ${os_type_7}"
+    if [ "$([ "_${os_type_14}" == "_Linux" ]; echo $?)" != 0 ]; then
+        echo "Unsupported OS type: ${os_type_14}"
         exit 1
     fi
     has_failed__115_v0 "ls -l /lib | grep libc.musl"
@@ -504,12 +504,12 @@ get_arch__165_v0() {
         echo "Failed to determine architecture."
         exit 1
     fi
-    arch_type_9="${command_15}"
+    arch_type_16="${command_15}"
     array_16=("arm64" "aarch64")
-    array_contains__2_v0 array_16[@] "${arch_type_9}"
+    array_contains__2_v0 array_16[@] "${arch_type_16}"
     ret_array_contains2_v0__34_14="${ret_array_contains2_v0}"
-    arch_13="$(if [ "${ret_array_contains2_v0__34_14}" != 0 ]; then echo "aarch64"; else echo "x86_64"; fi)"
-    ret_get_arch165_v0="${arch_13}"
+    arch_20="$(if [ "${ret_array_contains2_v0__34_14}" != 0 ]; then echo "aarch64"; else echo "x86_64"; fi)"
+    ret_get_arch165_v0="${arch_20}"
     return 0
 }
 
@@ -517,60 +517,60 @@ is_version_lt_0_5_0__166_v0() {
     local ver=$1
     # Remove -alpha, -beta, etc. suffix
     split__16_v0 "${ver}" "-"
-    version_parts_18=("${ret_split16_v0[@]}")
-    split__16_v0 "${version_parts_18[0]}" "."
-    version_numbers_19=("${ret_split16_v0[@]}")
+    version_parts_25=("${ret_split16_v0[@]}")
+    split__16_v0 "${version_parts_25[0]}" "."
+    version_numbers_26=("${ret_split16_v0[@]}")
     # Parse major, minor, patch
-    parse_int__25_v0 "${version_numbers_19[0]}"
+    parse_int__25_v0 "${version_numbers_26[0]}"
     __status=$?
     if [ "${__status}" != 0 ]; then
         ret_is_version_lt_0_5_0166_v0=0
         return 0
     fi
-    major_20="${ret_parse_int25_v0}"
-    __length_17=("${version_numbers_19[@]}")
-    parse_int__25_v0 "${version_numbers_19[1]}"
+    major_27="${ret_parse_int25_v0}"
+    __length_17=("${version_numbers_26[@]}")
+    parse_int__25_v0 "${version_numbers_26[1]}"
     __status=$?
     if [ "${__status}" != 0 ]; then
         ret_is_version_lt_0_5_0166_v0=0
         return 0
     fi
     ret_parse_int25_v0__50_10="${ret_parse_int25_v0}"
-    minor_21="$(if [ "$(( ${#__length_17[@]} > 1 ))" != 0 ]; then echo "${ret_parse_int25_v0__50_10}"; else echo 0; fi)"
+    minor_28="$(if [ "$(( ${#__length_17[@]} > 1 ))" != 0 ]; then echo "${ret_parse_int25_v0__50_10}"; else echo 0; fi)"
     # Compare with 0.5.0
-    if [ "$(( ${major_20} < 0 ))" != 0 ]; then
+    if [ "$(( ${major_27} < 0 ))" != 0 ]; then
         ret_is_version_lt_0_5_0166_v0=1
         return 0
-    elif [ "$(( ${major_20} > 0 ))" != 0 ]; then
+    elif [ "$(( ${major_27} > 0 ))" != 0 ]; then
         ret_is_version_lt_0_5_0166_v0=0
         return 0
     else
-        ret_is_version_lt_0_5_0166_v0="$(( ${minor_21} < 5 ))"
+        ret_is_version_lt_0_5_0166_v0="$(( ${minor_28} < 5 ))"
         return 0
     fi
 }
 
 check_url_exists__167_v0() {
     local url=$1
-    max_retries_23=3
-    retry_delay_seconds_24=1
+    max_retries_30=3
+    retry_delay_seconds_31=1
     from=1
-    to="$(( ${max_retries_23} + 1 ))"
-    for attempt_25 in $(if [ "${from}" -gt "${to}" ]; then seq -- "${from}" -1 "$(( ${to} + 1 ))"; elif [ "${from}" -lt "${to}" ]; then seq -- "${from}" "$(( ${to} - 1 ))"; fi); do
+    to="$(( ${max_retries_30} + 1 ))"
+    for attempt_32 in $(if [ "${from}" -gt "${to}" ]; then seq -- "${from}" -1 "$(( ${to} + 1 ))"; elif [ "${from}" -lt "${to}" ]; then seq -- "${from}" "$(( ${to} - 1 ))"; fi); do
         curl --head --fail --silent --location "${url}" >/dev/null 2>&1
         __status=$?
-        code_26="${__status}"
-            if [ "$(( ${code_26} == 0 ))" != 0 ]; then
+        code_33="${__status}"
+            if [ "$(( ${code_33} == 0 ))" != 0 ]; then
                 ret_check_url_exists167_v0=1
                 return 0
             fi
-        if [ "$(( ${attempt_25} < ${max_retries_23} ))" != 0 ]; then
-            echo "::debug::Attempt ${attempt_25}/${max_retries_23} failed, retrying in ${retry_delay_seconds_24}s..."
-            sleep ${retry_delay_seconds_24}
+        if [ "$(( ${attempt_32} < ${max_retries_30} ))" != 0 ]; then
+            echo "::debug::Attempt ${attempt_32}/${max_retries_30} failed, retrying in ${retry_delay_seconds_31}s..."
+            sleep ${retry_delay_seconds_31}
             __status=$?
         fi
     done
-    echo "::debug::Failed to check URL after ${max_retries_23} attempts"
+    echo "::debug::Failed to check URL after ${max_retries_30} attempts"
     ret_check_url_exists167_v0=0
     return 0
 }
@@ -583,18 +583,45 @@ install_amber_binary__168_v0() {
     cp "${source}" "${cache_path}/amber"
     __status=$?
     if [ "${__status}" != 0 ]; then
-    code_36="${__status}"
-        echo "Failed to copy binary to cache (exit code: ${code_36})."
+    code_11="${__status}"
+        echo "Failed to copy binary to cache (exit code: ${code_11})."
         exit 1
     fi
     echo "::debug::Installing amber binary to '${bin_path}'"
     install "${source}" "${bin_path}"
     __status=$?
     if [ "${__status}" != 0 ]; then
-    code_37="${__status}"
-        echo "Failed to install binary to '${bin_path}' (exit code: ${code_37})."
+    code_12="${__status}"
+        echo "Failed to install binary to '${bin_path}' (exit code: ${code_12})."
         exit 1
     fi
+}
+
+build_amber_from_source__169_v0() {
+    local source_dir=$1
+    local cache_path=$2
+    local bin_path=$3
+    echo "::debug::Building Amber from source in '${source_dir}'"
+    echo "::debug::Building Amber with cargo in '${source_dir}'"
+    cargo -C "${source_dir}" build --release
+    __status=$?
+    if [ "${__status}" != 0 ]; then
+    code_9="${__status}"
+        echo "Failed to build Amber from source (exit code: ${code_9})."
+        echo "Please ensure Rust and Cargo are installed and correctly configured in your environment."
+        echo "You might need to add a step like 'rustup-init.sh --profile minimal --default-toolchain stable -y' before this action."
+        exit 1
+    fi
+    built_binary_path_10="${source_dir}/target/release/amber"
+    file_exists__48_v0 "${built_binary_path_10}"
+    ret_file_exists48_v0__116_10="${ret_file_exists48_v0}"
+    if [ "$(( ! ${ret_file_exists48_v0__116_10} ))" != 0 ]; then
+        echo "Error: Built Amber binary not found at '${built_binary_path_10}'."
+        echo "Build might have failed or the binary path is incorrect."
+        exit 1
+    fi
+    install_amber_binary__168_v0 "${built_binary_path_10}" "${cache_path}" "${bin_path}"
+    echo "::debug::Successfully installed Amber from source to ${bin_path}"
 }
 
 env_var_get__109_v0 "SETUP_AMBER_CACHE_PATH"
@@ -603,83 +630,92 @@ cache_path_3="${ret_env_var_get109_v0}"
 env_var_get__109_v0 "SETUP_AMBER_BIN_PATH"
 __status=$?
 bin_path_4="${ret_env_var_get109_v0}"
+env_var_get__109_v0 "SETUP_AMBER_REPOSITORY_URL"
+__status=$?
+env_var_get__109_v0 "SETUP_AMBER_REPOSITORY_REF"
+__status=$?
+repo_ref_6="${ret_env_var_get109_v0}"
+env_var_get__109_v0 "SETUP_AMBER_SOURCE_DIR"
+__status=$?
+source_dir_7="${ret_env_var_get109_v0}"
 file_exists__48_v0 "${cache_path_3}/amber"
-ret_file_exists48_v0__105_4="${ret_file_exists48_v0}"
-if [ "${ret_file_exists48_v0__105_4}" != 0 ]; then
+ret_file_exists48_v0__133_4="${ret_file_exists48_v0}"
+if [ "${ret_file_exists48_v0__133_4}" != 0 ]; then
     echo "::debug::Using cached amber binary"
     install "${cache_path_3}/amber" "${bin_path_4}"
     __status=$?
     if [ "${__status}" != 0 ]; then
-    code_5="${__status}"
-        echo "Failed to locate binary file to ${bin_path_4} with code ${code_5}."
+    code_8="${__status}"
+        echo "Failed to locate binary file to ${bin_path_4} with code ${code_8}."
         exit 1
     fi
 else
-    env_var_get__109_v0 "SETUP_AMBER_VERSION"
-    __status=$?
-    ver_6="${ret_env_var_get109_v0}"
-    echo "::debug::Downloading amber ${ver_6}"
     dir_create__53_v0 "${cache_path_3}"
     __status=$?
-    get_os__164_v0 
-    os_8="${ret_get_os164_v0}"
-    get_arch__165_v0 
-    arch_14="${ret_get_arch165_v0}"
-    # Determine filename based on version
-    filename_15="amber"
-    binary_in_subdir_16=0
-    is_version_lt_0_5_0__166_v0 "${ver_6}"
-    ret_is_version_lt_0_5_0166_v0__122_6="${ret_is_version_lt_0_5_0166_v0}"
-    if [ "${ret_is_version_lt_0_5_0166_v0__122_6}" != 0 ]; then
-        # < 0.5.0: amber-{arch}-{target}.tar.xz
-        # - amber-aarch64-apple-darwin.tar.xz
-        # - amber-aarch64-unknown-linux-gnu.tar.xz
-        # - amber-x86_64-apple-darwin.tar.xz
-        # - amber-x86_64-unknown-linux-gnu.tar.xz
-        # - amber-x86_64-unknown-linux-musl.tar.xz
-        filename_15+="-${arch_14}"
-        if [ "$(( $([ "_${os_8}" != "_linux-gnu" ]; echo $?) || $([ "_${os_8}" != "_linux-musl" ]; echo $?) ))" != 0 ]; then
-            filename_15+="-unknown-${os_8}"
-        else
-            filename_15+="-apple-darwin"
-        fi
-        binary_in_subdir_16=1
+    __length_18="${repo_ref_6}"
+    if [ "$(( ${#__length_18} > 0 ))" != 0 ]; then
+        # If amber-repository-ref is provided, build from source
+        build_amber_from_source__169_v0 "${source_dir_7}" "${cache_path_3}" "${bin_path_4}"
     else
-        # >= 0.5.0: amber-{os}-{arch}.tar.xz
-        # - amber-linux-gnu-aarch64.tar.xz
-        # - amber-linux-gnu-x86_64.tar.xz
-        # - amber-linux-musl-aarch64.tar.xz
-        # - amber-linux-musl-x86_64.tar.xz
-        # - amber-macos-aarch64.tar.xz
-        # - amber-macos-x86_64.tar.xz
-        filename_15+="-${os_8}-${arch_14}"
-        binary_in_subdir_16=0
+        # Otherwise, proceed with downloading pre-built binaries
+        env_var_get__109_v0 "SETUP_AMBER_VERSION"
+        __status=$?
+        ver_13="${ret_env_var_get109_v0}"
+        echo "::debug::Downloading amber ${ver_13}"
+        get_os__164_v0 
+        os_15="${ret_get_os164_v0}"
+        get_arch__165_v0 
+        arch_21="${ret_get_arch165_v0}"
+        # Determine filename based on version
+        filename_22="amber"
+        binary_in_subdir_23=0
+        is_version_lt_0_5_0__166_v0 "${ver_13}"
+        ret_is_version_lt_0_5_0166_v0__153_8="${ret_is_version_lt_0_5_0166_v0}"
+        if [ "${ret_is_version_lt_0_5_0166_v0__153_8}" != 0 ]; then
+            # < 0.5.0: amber-{arch}-{target}.tar.xz
+            # - amber-aarch64-apple-darwin.tar.xz
+            # - amber-aarch64-unknown-linux-gnu.tar.xz
+            # - amber-x86_64-apple-darwin.tar.xz
+            # - amber-x86_64-unknown-linux-gnu.tar.xz
+            # - amber-x86_64-unknown-linux-musl.tar.xz
+            filename_22+="-${arch_21}"
+            if [ "$(( $([ "_${os_15}" != "_linux-gnu" ]; echo $?) || $([ "_${os_15}" != "_linux-musl" ]; echo $?) ))" != 0 ]; then
+                filename_22+="-unknown-${os_15}"
+            else
+                filename_22+="-apple-darwin"
+            fi
+            binary_in_subdir_23=1
+        else
+            # >= 0.5.0: amber-{os}-{arch}.tar.xz
+            filename_22+="-${os_15}-${arch_21}"
+            binary_in_subdir_23=0
+        fi
+        url_29="https://github.com/amber-lang/amber/releases/download/${ver_13}/${filename_22}.tar.xz"
+        # Check if URL exists before downloading
+        check_url_exists__167_v0 "${url_29}"
+        ret_check_url_exists167_v0__175_12="${ret_check_url_exists167_v0}"
+        if [ "$(( ! ${ret_check_url_exists167_v0__175_12} ))" != 0 ]; then
+            echo "Error: Release file not found at ${url_29}"
+            echo "Please check if version ${ver_13} exists and is available for your platform (${os_15}, ${arch_21})."
+            exit 1
+        fi
+        echo "::debug::Downloading from ${url_29}"
+        temp_dir_create__55_v0 "amber_download.XXXXXXXXXX" 1 1
+        __status=$?
+        temp_dir_35="${ret_temp_dir_create55_v0}"
+        file_download__160_v0 "${url_29}" "${temp_dir_35}/amber.tar.xz"
+        __status=$?
+        file_extract__61_v0 "${temp_dir_35}/amber.tar.xz" "${temp_dir_35}"
+        __status=$?
+        # Install binary based on directory structure
+        binary_source_42="$(if [ "${binary_in_subdir_23}" != 0 ]; then echo "${temp_dir_35}/${filename_22}/amber"; else echo "${temp_dir_35}/amber"; fi)"
+        install_amber_binary__168_v0 "${binary_source_42}" "${cache_path_3}" "${bin_path_4}"
+        echo "::debug::Successfully installed amber ${ver_13} to ${bin_path_4}"
     fi
-    url_22="https://github.com/amber-lang/amber/releases/download/${ver_6}/${filename_15}.tar.xz"
-    # Check if URL exists before downloading
-    check_url_exists__167_v0 "${url_22}"
-    ret_check_url_exists167_v0__150_10="${ret_check_url_exists167_v0}"
-    if [ "$(( ! ${ret_check_url_exists167_v0__150_10} ))" != 0 ]; then
-        echo "Error: Release file not found at ${url_22}"
-        echo "Please check if version ${ver_6} exists and is available for your platform (${os_8}, ${arch_14})."
-        exit 1
-    fi
-    echo "::debug::Downloading from ${url_22}"
-    temp_dir_create__55_v0 "amber_download.XXXXXXXXXX" 1 1
-    __status=$?
-    temp_dir_28="${ret_temp_dir_create55_v0}"
-    file_download__160_v0 "${url_22}" "${temp_dir_28}/amber.tar.xz"
-    __status=$?
-    file_extract__61_v0 "${temp_dir_28}/amber.tar.xz" "${temp_dir_28}"
-    __status=$?
-    # Install binary based on directory structure
-    binary_source_35="$(if [ "${binary_in_subdir_16}" != 0 ]; then echo "${temp_dir_28}/${filename_15}/amber"; else echo "${temp_dir_28}/amber"; fi)"
-    install_amber_binary__168_v0 "${binary_source_35}" "${cache_path_3}" "${bin_path_4}"
-    echo "::debug::Successfully installed amber ${ver_6} to ${bin_path_4}"
 fi
 echo "amber-path=${bin_path_4}" >> "$GITHUB_OUTPUT"
 __status=$?
 if [ "${__status}" != 0 ]; then
-code_38="${__status}"
-    echo "::warning::Failed to set amber-path output with code ${code_38}."
+code_43="${__status}"
+    echo "::warning::Failed to set amber-path output with code ${code_43}."
 fi

@@ -7,6 +7,16 @@ inputs:
   amber-version:
     description: The version of Amber to install.
     default: 0.5.1-alpha
+  amber-repository-url:
+    description: >-
+      The Git repository URL to clone Amber from when building from source.
+      Defaults to the official Amber repository.
+    default: https://github.com/amber-lang/amber.git
+  amber-repository-ref:
+    description: >-
+      A Git ref (commit SHA, branch name, or tag name) to build Amber from source.
+      If provided, this overrides 'amber-version' and triggers a build from source.
+    default: ""
   enable-cache:
     description: Whether to cache Amber binaries.
     default: true
@@ -42,16 +52,54 @@ runs:
         } >> "$GITHUB_OUTPUT"
     - name: Cache Amber binaries
       uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+      id: amber-cache
       if: inputs.enable-cache
       with:
         path: ${{ steps.cache-path.outputs.amber_cache_path }}/amber
-        key: setup-amber-${{ runner.os }}-${{ runner.arch }}-${{ inputs.amber-version }}
+        key: >-
+          setup-amber-${{ runner.os }}-${{ runner.arch }}-${{
+          inputs.amber-repository-ref || inputs.amber-version }}
+    - name: Determine source directory
+      if: inputs.amber-repository-ref != '' && steps.amber-cache.outputs.cache-hit != 'true'
+      id: source-dir
+      shell: bash
+      run: |
+        if [ "${{ inputs.enable-cache }}" = "true" ]; then
+          src_dir="${{ steps.cache-path.outputs.amber_cache_path }}/amber-source"
+        else
+          src_dir="${{ runner.temp }}/amber-source"
+        fi
+        echo "src_dir=$src_dir" >> "$GITHUB_OUTPUT"
+    - name: Checkout Amber source
+      if: inputs.amber-repository-ref != '' && steps.amber-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        dest_dir="${{ steps.source-dir.outputs.src_dir }}"
+        echo "::debug::Checking out Amber source to $dest_dir"
+        if [ -d "$dest_dir/.git" ]; then
+          echo "Source already exists in $dest_dir"
+        else
+          mkdir -p "$dest_dir"
+          cd "$dest_dir"
+          git init
+          git remote add origin "${{ inputs.amber-repository-url }}"
+          git fetch --depth 1 origin "${{ inputs.amber-repository-ref }}"
+          git checkout FETCH_HEAD
+        fi
+    - name: Cache Rust build artifacts
+      uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+      if: inputs.amber-repository-ref != '' && steps.amber-cache.outputs.cache-hit != 'true'
+      with:
+        workspaces: ${{ steps.source-dir.outputs.src_dir }} -> target
     - id: main
       shell: bash
       env:
         SETUP_AMBER_CACHE_PATH: ${{ steps.cache-path.outputs.amber_cache_path }}
         SETUP_AMBER_BIN_PATH: ${{ inputs.bin-path }}
         SETUP_AMBER_VERSION: ${{ inputs.amber-version }}
+        SETUP_AMBER_REPOSITORY_URL: ${{ inputs.amber-repository-url }}
+        SETUP_AMBER_REPOSITORY_REF: ${{ inputs.amber-repository-ref }}
+        SETUP_AMBER_SOURCE_DIR: ${{ steps.source-dir.outputs.src_dir }}
       run: |
         # Download Amber binary
         bash "${{ github.action_path }}/dist/main.sh"

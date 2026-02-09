@@ -100,8 +100,36 @@ fun install_amber_binary(source: Text, cache_path: Text, bin_path: Text) {
   }
 }
 
+/// Builds Amber from source
+fun build_amber_from_source(source_dir: Text, cache_path: Text, bin_path: Text) {
+  echo "::debug::Building Amber from source in '{source_dir}'"
+
+  echo "::debug::Building Amber with cargo in '{source_dir}'"
+  $ cargo -C "{source_dir}" build --release $ failed(code) {
+    echo "Failed to build Amber from source (exit code: {code})."
+    echo "Please ensure Rust and Cargo are installed and correctly configured in your environment."
+    echo "You might need to add a step like 'rustup-init.sh --profile minimal --default-toolchain stable -y' before this action."
+    exit 1
+  }
+
+  const built_binary_path = "{source_dir}/target/release/amber"
+  if not file_exists(built_binary_path) {
+    echo "Error: Built Amber binary not found at '{built_binary_path}'."
+    echo "Build might have failed or the binary path is incorrect."
+    exit 1
+  }
+
+  install_amber_binary(built_binary_path, cache_path, bin_path)
+  echo "::debug::Successfully installed Amber from source to {bin_path}"
+}
+
+
 const cache_path = trust env_var_get("SETUP_AMBER_CACHE_PATH")
 const bin_path = trust env_var_get("SETUP_AMBER_BIN_PATH")
+const repo_url = trust env_var_get("SETUP_AMBER_REPOSITORY_URL")
+const repo_ref = trust env_var_get("SETUP_AMBER_REPOSITORY_REF")
+const source_dir = trust env_var_get("SETUP_AMBER_SOURCE_DIR")
+
 if file_exists("{cache_path}/amber") {
   echo "::debug::Using cached amber binary"
   $ install "{cache_path}/amber" "{bin_path}" $ failed(code) {
@@ -109,62 +137,60 @@ if file_exists("{cache_path}/amber") {
     exit 1
   }
 } else {
-  const ver = trust env_var_get("SETUP_AMBER_VERSION")
-  echo "::debug::Downloading amber {ver}"
   trust dir_create("{cache_path}")
+  if len(repo_ref) > 0 { // If amber-repository-ref is provided, build from source
+    build_amber_from_source(source_dir, cache_path, bin_path)
+  } else { // Otherwise, proceed with downloading pre-built binaries
+    const ver = trust env_var_get("SETUP_AMBER_VERSION")
+    echo "::debug::Downloading amber {ver}"
+    
+    const os = get_os()
+    const arch = get_arch()
 
-  const os = get_os()
-  const arch = get_arch()
+    // Determine filename based on version
+    let filename = "amber"
+    let binary_in_subdir = false
+    if is_version_lt_0_5_0(ver) {
+      // < 0.5.0: amber-{arch}-{target}.tar.xz
+      // - amber-aarch64-apple-darwin.tar.xz
+      // - amber-aarch64-unknown-linux-gnu.tar.xz
+      // - amber-x86_64-apple-darwin.tar.xz
+      // - amber-x86_64-unknown-linux-gnu.tar.xz
+      // - amber-x86_64-unknown-linux-musl.tar.xz
+      filename += "-{arch}"
+      if os == "linux-gnu" or os == "linux-musl":
+        filename += "-unknown-{os}"
+      else:
+        filename += "-apple-darwin"
+      binary_in_subdir = true
+    } else {
+      // >= 0.5.0: amber-{os}-{arch}.tar.xz
+      filename += "-{os}-{arch}"
+      binary_in_subdir = false
+    }
 
-  // Determine filename based on version
-  let filename = "amber"
-  let binary_in_subdir = false
-  if is_version_lt_0_5_0(ver) {
-    // < 0.5.0: amber-{arch}-{target}.tar.xz
-    // - amber-aarch64-apple-darwin.tar.xz
-    // - amber-aarch64-unknown-linux-gnu.tar.xz
-    // - amber-x86_64-apple-darwin.tar.xz
-    // - amber-x86_64-unknown-linux-gnu.tar.xz
-    // - amber-x86_64-unknown-linux-musl.tar.xz
-    filename += "-{arch}"
-    if os == "linux-gnu" or os == "linux-musl":
-      filename += "-unknown-{os}"
-    else:
-      filename += "-apple-darwin"
-    binary_in_subdir = true
-  } else {
-    // >= 0.5.0: amber-{os}-{arch}.tar.xz
-    // - amber-linux-gnu-aarch64.tar.xz
-    // - amber-linux-gnu-x86_64.tar.xz
-    // - amber-linux-musl-aarch64.tar.xz
-    // - amber-linux-musl-x86_64.tar.xz
-    // - amber-macos-aarch64.tar.xz
-    // - amber-macos-x86_64.tar.xz
-    filename += "-{os}-{arch}"
-    binary_in_subdir = false
+    const url = "https://github.com/amber-lang/amber/releases/download/{ver}/{filename}.tar.xz"
+
+    // Check if URL exists before downloading
+    if not check_url_exists(url) {
+      echo "Error: Release file not found at {url}"
+      echo "Please check if version {ver} exists and is available for your platform ({os}, {arch})."
+      exit 1
+    }
+
+    echo "::debug::Downloading from {url}"
+    const temp_dir = trust temp_dir_create("amber_download.XXXXXXXXXX", true, true)
+    trust file_download(url, "{temp_dir}/amber.tar.xz")
+    trust file_extract("{temp_dir}/amber.tar.xz", temp_dir)
+
+    // Install binary based on directory structure
+    const binary_source = binary_in_subdir
+      then "{temp_dir}/{filename}/amber"
+      else "{temp_dir}/amber"
+
+    install_amber_binary(binary_source, cache_path, bin_path)
+    echo "::debug::Successfully installed amber {ver} to {bin_path}"
   }
-
-  const url = "https://github.com/amber-lang/amber/releases/download/{ver}/{filename}.tar.xz"
-
-  // Check if URL exists before downloading
-  if not check_url_exists(url) {
-    echo "Error: Release file not found at {url}"
-    echo "Please check if version {ver} exists and is available for your platform ({os}, {arch})."
-    exit 1
-  }
-
-  echo "::debug::Downloading from {url}"
-  const temp_dir = trust temp_dir_create("amber_download.XXXXXXXXXX", true, true)
-  trust file_download(url, "{temp_dir}/amber.tar.xz")
-  trust file_extract("{temp_dir}/amber.tar.xz", temp_dir)
-
-  // Install binary based on directory structure
-  const binary_source = binary_in_subdir
-    then "{temp_dir}/{filename}/amber"
-    else "{temp_dir}/amber"
-
-  install_amber_binary(binary_source, cache_path, bin_path)
-  echo "::debug::Successfully installed amber {ver} to {bin_path}"
 }
 
 $ echo "amber-path={bin_path}" >> "\$GITHUB_OUTPUT" $ failed(code) {
