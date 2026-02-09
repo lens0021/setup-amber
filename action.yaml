@@ -57,8 +57,7 @@ runs:
       with:
         path: ${{ steps.cache-path.outputs.amber_cache_path }}/amber
         key: >-
-          setup-amber-${{ runner.os }}-${{ runner.arch }}-${{
-          inputs.amber-repository-ref || inputs.amber-version }}
+          setup-amber-${{ runner.os }}-${{ runner.arch }}-${{ inputs.amber-repository-ref || inputs.amber-version }}
     - name: Determine source directory
       if: inputs.amber-repository-ref != '' && steps.amber-cache.outputs.cache-hit != 'true'
       id: source-dir
@@ -82,7 +81,12 @@ runs:
           mkdir -p "$dest_dir"
           cd "$dest_dir"
           git init
-          git remote add origin "${{ inputs.amber-repository-url }}"
+          # Use the token for authentication if it's a GitHub URL
+          url="${{ inputs.amber-repository-url }}"
+          if [[ "$url" == "https://github.com/"* ]]; then
+            url="${url/https:\/\/github.com\//https://x-access-token:$GITHUB_TOKEN@github.com/}"
+          fi
+          git remote add origin "$url"
           git fetch --depth 1 origin "${{ inputs.amber-repository-ref }}"
           git checkout FETCH_HEAD
         fi
