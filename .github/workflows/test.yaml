@@ -88,6 +88,25 @@ jobs:
 
       - run: ./amber --version
 
+  test-repository-ref:
+    name: Test amber-repository-ref
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: ./
+        with:
+          amber-repository-ref: 3742194594cfdf18e034658d1f58a93b3143bbd7
+
+      - run: |
+          which amber
+          amber --version | grep -q 3742194
+          echo 'echo("Hello, Amber!")' > test.ab
+          amber build test.ab
+          bash test.sh
+
   test-output:
     name: Test amber-path output
     runs-on: ubuntu-latest
