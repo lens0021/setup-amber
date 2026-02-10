@@ -62,18 +62,26 @@ runs:
       if: inputs.amber-repository-ref != '' && steps.amber-cache.outputs.cache-hit != 'true'
       id: source-dir
       shell: bash
+      env:
+        ENABLE_CACHE: ${{ inputs.enable-cache }}
+        CACHE_PATH: ${{ steps.cache-path.outputs.amber_cache_path }}
+        RUNNER_TEMP: ${{ runner.temp }}
       run: |
-        if [ "${{ inputs.enable-cache }}" = "true" ]; then
-          src_dir="${{ steps.cache-path.outputs.amber_cache_path }}/amber-source"
+        if [ "$ENABLE_CACHE" = "true" ]; then
+          src_dir="$CACHE_PATH/amber-source"
         else
-          src_dir="${{ runner.temp }}/amber-source"
+          src_dir="$RUNNER_TEMP/amber-source"
         fi
         echo "src_dir=$src_dir" >> "$GITHUB_OUTPUT"
     - name: Checkout Amber source
       if: inputs.amber-repository-ref != '' && steps.amber-cache.outputs.cache-hit != 'true'
       shell: bash
+      env:
+        SOURCE_DIR: ${{ steps.source-dir.outputs.src_dir }}
+        REPO_URL: ${{ inputs.amber-repository-url }}
+        REPO_REF: ${{ inputs.amber-repository-ref }}
       run: |
-        dest_dir="${{ steps.source-dir.outputs.src_dir }}"
+        dest_dir="$SOURCE_DIR"
         echo "::debug::Checking out Amber source to $dest_dir"
         if [ -d "$dest_dir/.git" ]; then
           echo "Source already exists in $dest_dir"
@@ -82,12 +90,12 @@ runs:
           cd "$dest_dir"
           git init
           # Use the token for authentication if it's a GitHub URL
-          url="${{ inputs.amber-repository-url }}"
+          url="$REPO_URL"
           if [[ "$url" == "https://github.com/"* ]]; then
             url="${url/https:\/\/github.com\//https://x-access-token:$GITHUB_TOKEN@github.com/}"
           fi
           git remote add origin "$url"
-          git fetch --depth 1 origin "${{ inputs.amber-repository-ref }}"
+          git fetch --depth 1 origin "$REPO_REF"
           git checkout FETCH_HEAD
         fi
     - name: Cache Rust build artifacts
@@ -98,6 +106,7 @@ runs:
     - id: main
       shell: bash
       env:
+        ACTION_PATH: ${{ github.action_path }}
         SETUP_AMBER_CACHE_PATH: ${{ steps.cache-path.outputs.amber_cache_path }}
         SETUP_AMBER_BIN_PATH: ${{ inputs.bin-path }}
         SETUP_AMBER_VERSION: ${{ inputs.amber-version }}
@@ -106,4 +115,4 @@ runs:
         SETUP_AMBER_SOURCE_DIR: ${{ steps.source-dir.outputs.src_dir }}
       run: |
         # Download Amber binary
-        bash "${{ github.action_path }}/dist/main.sh"
+        bash "$ACTION_PATH/dist/main.sh"
