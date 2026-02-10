@@ -575,6 +575,28 @@ check_url_exists__167_v0() {
     return 0
 }
 
+install_amber_binary__168_v0() {
+    local source=$1
+    local cache_path=$2
+    local bin_path=$3
+    echo "::debug::Copying amber binary to cache '${cache_path}/amber'"
+    cp "${source}" "${cache_path}/amber"
+    __status=$?
+    if [ "${__status}" != 0 ]; then
+    code_36="${__status}"
+        echo "Failed to copy binary to cache (exit code: ${code_36})."
+        exit 1
+    fi
+    echo "::debug::Installing amber binary to '${bin_path}'"
+    install "${source}" "${bin_path}"
+    __status=$?
+    if [ "${__status}" != 0 ]; then
+    code_37="${__status}"
+        echo "Failed to install binary to '${bin_path}' (exit code: ${code_37})."
+        exit 1
+    fi
+}
+
 env_var_get__109_v0 "SETUP_AMBER_CACHE_PATH"
 __status=$?
 cache_path_3="${ret_env_var_get109_v0}"
@@ -582,8 +604,8 @@ env_var_get__109_v0 "SETUP_AMBER_BIN_PATH"
 __status=$?
 bin_path_4="${ret_env_var_get109_v0}"
 file_exists__48_v0 "${cache_path_3}/amber"
-ret_file_exists48_v0__91_4="${ret_file_exists48_v0}"
-if [ "${ret_file_exists48_v0__91_4}" != 0 ]; then
+ret_file_exists48_v0__105_4="${ret_file_exists48_v0}"
+if [ "${ret_file_exists48_v0__105_4}" != 0 ]; then
     echo "::debug::Using cached amber binary"
     install "${cache_path_3}/amber" "${bin_path_4}"
     __status=$?
@@ -607,8 +629,8 @@ else
     filename_15="amber"
     binary_in_subdir_16=0
     is_version_lt_0_5_0__166_v0 "${ver_6}"
-    ret_is_version_lt_0_5_0166_v0__108_6="${ret_is_version_lt_0_5_0166_v0}"
-    if [ "${ret_is_version_lt_0_5_0166_v0__108_6}" != 0 ]; then
+    ret_is_version_lt_0_5_0166_v0__122_6="${ret_is_version_lt_0_5_0166_v0}"
+    if [ "${ret_is_version_lt_0_5_0166_v0__122_6}" != 0 ]; then
         # < 0.5.0: amber-{arch}-{target}.tar.xz
         # - amber-aarch64-apple-darwin.tar.xz
         # - amber-aarch64-unknown-linux-gnu.tar.xz
@@ -636,8 +658,8 @@ else
     url_22="https://github.com/amber-lang/amber/releases/download/${ver_6}/${filename_15}.tar.xz"
     # Check if URL exists before downloading
     check_url_exists__167_v0 "${url_22}"
-    ret_check_url_exists167_v0__136_10="${ret_check_url_exists167_v0}"
-    if [ "$(( ! ${ret_check_url_exists167_v0__136_10} ))" != 0 ]; then
+    ret_check_url_exists167_v0__150_10="${ret_check_url_exists167_v0}"
+    if [ "$(( ! ${ret_check_url_exists167_v0__150_10} ))" != 0 ]; then
         echo "Error: Release file not found at ${url_22}"
         echo "Please check if version ${ver_6} exists and is available for your platform (${os_8}, ${arch_14})."
         exit 1
@@ -652,20 +674,7 @@ else
     __status=$?
     # Install binary based on directory structure
     binary_source_35="$(if [ "${binary_in_subdir_16}" != 0 ]; then echo "${temp_dir_28}/${filename_15}/amber"; else echo "${temp_dir_28}/amber"; fi)"
-    echo "::debug::Installing binary from ${binary_source_35}"
-    cp "${binary_source_35}" "${cache_path_3}/amber"
-    __status=$?
-    if [ "${__status}" != 0 ]; then
-    code_36="${__status}"
-        echo "Failed to copy binary file to ${cache_path_3}/amber with code ${code_36}."
-    fi
-    install "${binary_source_35}" "${bin_path_4}"
-    __status=$?
-    if [ "${__status}" != 0 ]; then
-    code_37="${__status}"
-        echo "Failed to install binary file to ${bin_path_4} with code ${code_37}."
-        exit 1
-    fi
+    install_amber_binary__168_v0 "${binary_source_35}" "${cache_path_3}" "${bin_path_4}"
     echo "::debug::Successfully installed amber ${ver_6} to ${bin_path_4}"
 fi
 echo "amber-path=${bin_path_4}" >> "$GITHUB_OUTPUT"

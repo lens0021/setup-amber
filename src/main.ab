@@ -86,6 +86,20 @@ fun check_url_exists(url: Text): Bool {
   return false
 }
 
+fun install_amber_binary(source: Text, cache_path: Text, bin_path: Text) {
+  echo "::debug::Copying amber binary to cache '{cache_path}/amber'"
+  $ cp "{source}" "{cache_path}/amber" $ failed(code) {
+    echo "Failed to copy binary to cache (exit code: {code})."
+    exit 1
+  }
+
+  echo "::debug::Installing amber binary to '{bin_path}'"
+  $ install "{source}" "{bin_path}" $ failed(code) {
+    echo "Failed to install binary to '{bin_path}' (exit code: {code})."
+    exit 1
+  }
+}
+
 const cache_path = trust env_var_get("SETUP_AMBER_CACHE_PATH")
 const bin_path = trust env_var_get("SETUP_AMBER_BIN_PATH")
 if file_exists("{cache_path}/amber") {
@@ -149,14 +163,7 @@ if file_exists("{cache_path}/amber") {
     then "{temp_dir}/{filename}/amber"
     else "{temp_dir}/amber"
 
-  echo "::debug::Installing binary from {binary_source}"
-  $ cp "{binary_source}" "{cache_path}/amber" $ failed(code) {
-    echo "Failed to copy binary file to {cache_path}/amber with code {code}."
-  }
-  $ install "{binary_source}" "{bin_path}" $ failed(code) {
-    echo "Failed to install binary file to {bin_path} with code {code}."
-    exit 1
-  }
+  install_amber_binary(binary_source, cache_path, bin_path)
   echo "::debug::Successfully installed amber {ver} to {bin_path}"
 }
 
