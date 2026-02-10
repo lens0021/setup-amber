@@ -165,6 +165,12 @@ if file_exists("{cache_path}/amber") {
       binary_in_subdir = true
     } else {
       // >= 0.5.0: amber-{os}-{arch}.tar.xz
+      // - amber-linux-gnu-aarch64.tar.xz
+      // - amber-linux-gnu-x86_64.tar.xz
+      // - amber-linux-musl-aarch64.tar.xz
+      // - amber-linux-musl-x86_64.tar.xz
+      // - amber-macos-aarch64.tar.xz
+      // - amber-macos-x86_64.tar.xz
       filename += "-{os}-{arch}"
       binary_in_subdir = false
     }
