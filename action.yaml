@@ -49,7 +49,7 @@ runs:
     - id: main
       shell: bash
       env:
-        SETUP_AMBER_CACHE_PATH: ${{ env.amber_cache_path }}
+        SETUP_AMBER_CACHE_PATH: ${{ steps.cache-path.outputs.amber_cache_path }}
         SETUP_AMBER_BIN_PATH: ${{ inputs.bin-path }}
         SETUP_AMBER_VERSION: ${{ inputs.amber-version }}
       run: |
