@@ -27,6 +27,16 @@ See [action.yaml](action.yaml)
     # Default: 0.5.1-alpha
     amber-version: ""
 
+    # Git repository URL to clone Amber from when building from source.
+    # Default: https://github.com/amber-lang/amber.git
+    amber-repository-url: ""
+
+    # Git ref (commit SHA, branch, or tag) to build Amber from source.
+    # If provided, this overrides 'amber-version' and builds from source.
+    # Examples: main, v0.5.0-alpha, 3742194594cfdf18e034658d1f58a93b3143bbd7
+    # Default: "" (uses pre-built binaries)
+    amber-repository-ref: ""
+
     # Whether to cache Amber binaries
     # Default: true
     enable-cache: ""
@@ -93,6 +103,35 @@ jobs:
 - name: Display installed path
   run: echo "Amber installed at ${{ steps.setup-amber.outputs.amber-path }}"
 ```
+
+**Building from source:**
+
+```yaml
+- uses: lens0021/setup-amber@v2
+  with:
+    # Build from a specific commit
+    amber-repository-ref: 3742194594cfdf18e034658d1f58a93b3143bbd7
+```
+
+```yaml
+- uses: lens0021/setup-amber@v2
+  with:
+    # Build from a branch
+    amber-repository-ref: main
+```
+
+```yaml
+- uses: lens0021/setup-amber@v2
+  with:
+    # Build from a custom repository fork
+    amber-repository-url: https://github.com/myusername/amber.git
+    amber-repository-ref: my-feature-branch
+```
+
+> [!NOTE]
+> Building from source requires Rust and Cargo to be available in the environment.
+> GitHub Actions runners include these by default, but if you're using a custom
+> runner, you may need to install the Rust toolchain first.
 
 ## License
 
