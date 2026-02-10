@@ -19,6 +19,8 @@ See [action.yaml](action.yaml)
 
 <!-- start usage -->
 
+### Basic Parameters
+
 ```yaml
 - uses: lens0021/setup-amber@v1
   with:
@@ -26,16 +28,6 @@ See [action.yaml](action.yaml)
     # Examples: 0.4.0-alpha, 0.5.0-alpha
     # Default: 0.5.1-alpha
     amber-version: ""
-
-    # Git repository URL to clone Amber from when building from source.
-    # Default: https://github.com/amber-lang/amber.git
-    amber-repository-url: ""
-
-    # Git ref (commit SHA, branch, or tag) to build Amber from source.
-    # If provided, this overrides 'amber-version' and builds from source.
-    # Examples: main, v0.5.0-alpha, 3742194594cfdf18e034658d1f58a93b3143bbd7
-    # Default: "" (uses pre-built binaries)
-    amber-repository-ref: ""
 
     # Whether to cache Amber binaries
     # Default: true
@@ -50,6 +42,24 @@ See [action.yaml](action.yaml)
     # The path where the Amber binary should be installed.
     # Default: /usr/local/bin/amber
     bin-path: ""
+```
+
+### Building from Source (Optional)
+
+When building Amber from source instead of using pre-built binaries:
+
+```yaml
+- uses: lens0021/setup-amber@v1
+  with:
+    # Git repository URL to clone Amber from when building from source.
+    # Default: https://github.com/amber-lang/amber.git
+    amber-repository-url: ""
+
+    # Git ref (commit SHA, branch, or tag) to build Amber from source.
+    # If provided, this overrides 'amber-version' and builds from source.
+    # Examples: main, v0.5.0-alpha, 3742194594cfdf18e034658d1f58a93b3143bbd7
+    # Default: "" (uses pre-built binaries)
+    amber-repository-ref: ""
 ```
 
 <!-- end usage -->
