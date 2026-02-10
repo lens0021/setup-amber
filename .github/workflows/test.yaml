@@ -98,12 +98,13 @@ jobs:
 
       - uses: ./
         with:
-          amber-repository-ref: 3742194594cfdf18e034658d1f58a93b3143bbd7
+          amber-repository-ref: 75a57027775f56b4044439346f2cd33df80645f9
 
       - run: |
           which amber
+          amber --version
           amber --version | grep -q 3742194
-          echo 'echo("Hello, Amber!")' > test.ab
+          echo 'echo(trust ls("."))' > test.ab
           amber build test.ab
           bash test.sh
 
