@@ -16,8 +16,6 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: GitHubSecurityLab/actions-permissions/monitor@b25f731bf2f9eb9748c2e9757d366c3e72fa2109 # v1.0.2-beta8
-
       - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
         id: lint_pr_title
         env:
