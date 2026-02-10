@@ -112,3 +112,26 @@ jobs:
             exit 1
           fi
           echo "amber-path output is valid"
+
+  test-cache-miss:
+    name: Test with forced cache miss
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Amber with unique cache path to force cache miss
+        uses: ./
+        with:
+          amber-version: 0.4.0-alpha
+          # Use a unique cache path with timestamp to guarantee cache miss
+          cache-path: /tmp/amber-cache-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Verify installation after cache miss
+        run: |
+          which amber
+          amber --version
+          echo 'echo "Cache miss test passed!"' > test.ab
+          amber build test.ab
+          bash test.sh
