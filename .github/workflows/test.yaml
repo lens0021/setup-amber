@@ -120,13 +120,15 @@ jobs:
         with:
           amber-version: 0.5.1-alpha
 
-      - run: |
-          echo "Amber path output: ${{ steps.setup.outputs.amber-path }}"
-          if [ -z "${{ steps.setup.outputs.amber-path }}" ]; then
+      - env:
+          AMBER_PATH: ${{ steps.setup.outputs.amber-path }}
+        run: |
+          echo "Amber path output: $AMBER_PATH"
+          if [ -z "$AMBER_PATH" ]; then
             echo "Error: amber-path output is empty"
             exit 1
           fi
-          if [ ! -x "${{ steps.setup.outputs.amber-path }}" ]; then
+          if [ ! -x "$AMBER_PATH" ]; then
             echo "Error: amber-path does not point to an executable file"
             exit 1
           fi
