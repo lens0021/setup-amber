@@ -687,14 +687,20 @@ else
             binary_in_subdir_23=1
         else
             # >= 0.5.0: amber-{os}-{arch}.tar.xz
+            # - amber-linux-gnu-aarch64.tar.xz
+            # - amber-linux-gnu-x86_64.tar.xz
+            # - amber-linux-musl-aarch64.tar.xz
+            # - amber-linux-musl-x86_64.tar.xz
+            # - amber-macos-aarch64.tar.xz
+            # - amber-macos-x86_64.tar.xz
             filename_22+="-${os_15}-${arch_21}"
             binary_in_subdir_23=0
         fi
         url_29="https://github.com/amber-lang/amber/releases/download/${ver_13}/${filename_22}.tar.xz"
         # Check if URL exists before downloading
         check_url_exists__167_v0 "${url_29}"
-        ret_check_url_exists167_v0__175_12="${ret_check_url_exists167_v0}"
-        if [ "$(( ! ${ret_check_url_exists167_v0__175_12} ))" != 0 ]; then
+        ret_check_url_exists167_v0__181_12="${ret_check_url_exists167_v0}"
+        if [ "$(( ! ${ret_check_url_exists167_v0__181_12} ))" != 0 ]; then
             echo "Error: Release file not found at ${url_29}"
             echo "Please check if version ${ver_13} exists and is available for your platform (${os_15}, ${arch_21})."
             exit 1
