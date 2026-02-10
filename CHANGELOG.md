@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.3.0](https://github.com/lens0021/setup-amber-action/compare/v2.2.0...v2.3.0) (2026-02-10)
+
+
+### Features
+
+* Add support for building Amber from source ([#69](https://github.com/lens0021/setup-amber-action/issues/69)) ([8d10cff](https://github.com/lens0021/setup-amber-action/commit/8d10cffecb793db23ac1a6532b34e45f2f2d9d14))
+
+
+### Bug Fixes
+
+* Avoid exposing an internal environment variable ([#55](https://github.com/lens0021/setup-amber-action/issues/55)) ([385b135](https://github.com/lens0021/setup-amber-action/commit/385b135a8646e1bf684d6b6e209ea0bdc8f99740))
+* Use correct cache path reference in env variable ([#71](https://github.com/lens0021/setup-amber-action/issues/71)) ([3945181](https://github.com/lens0021/setup-amber-action/commit/3945181dc70aa43ee5db8a9f32b68446a4f5c630))
+
 ## [2.2.0](https://github.com/lens0021/setup-amber-action/compare/v2.1.0...v2.2.0) (2025-12-19)
 
 
