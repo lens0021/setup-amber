@@ -608,8 +608,8 @@ build_amber_from_source__169_v0() {
     if [ "${__status}" != 0 ]; then
     code_9="${__status}"
         echo "Failed to build Amber from source (exit code: ${code_9})."
-        echo "Please ensure Rust and Cargo are installed and correctly configured in your environment."
-        echo "You might need to add a step like 'rustup-init.sh --profile minimal --default-toolchain stable -y' before this action."
+        echo "Please ensure Rust and Cargo are properly installed in your environment."
+        echo "You may need to set up Rust toolchain before using this action."
         exit 1
     fi
     built_binary_path_10="${source_dir}/target/release/amber"
