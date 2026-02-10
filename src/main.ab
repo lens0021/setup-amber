@@ -154,7 +154,7 @@ if file_exists("{cache_path}/amber") {
   }
 
   echo "::debug::Downloading from {url}"
-  const temp_dir = trust temp_dir_create("tmp.XXXXXXXXXX", true, true)
+  const temp_dir = trust temp_dir_create("amber_download.XXXXXXXXXX", true, true)
   trust file_download(url, "{temp_dir}/amber.tar.xz")
   trust file_extract("{temp_dir}/amber.tar.xz", temp_dir)
 

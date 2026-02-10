@@ -665,7 +665,7 @@ else
         exit 1
     fi
     echo "::debug::Downloading from ${url_22}"
-    temp_dir_create__55_v0 "tmp.XXXXXXXXXX" 1 1
+    temp_dir_create__55_v0 "amber_download.XXXXXXXXXX" 1 1
     __status=$?
     temp_dir_28="${ret_temp_dir_create55_v0}"
     file_download__160_v0 "${url_22}" "${temp_dir_28}/amber.tar.xz"
