@@ -103,7 +103,7 @@ jobs:
       - run: |
           which amber
           amber --version
-          amber --version | grep -q 3742194
+          amber --version | grep -q 75a5702
           echo 'echo(trust ls("."))' > test.ab
           amber build test.ab
           bash test.sh
