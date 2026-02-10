@@ -105,7 +105,7 @@ fun build_amber_from_source(source_dir: Text, cache_path: Text, bin_path: Text) 
   echo "::debug::Building Amber from source in '{source_dir}'"
 
   echo "::debug::Building Amber with cargo in '{source_dir}'"
-  $ cargo -C "{source_dir}" build --release $ failed(code) {
+  $ cd "{source_dir}" && cargo build --release $ failed(code) {
     echo "Failed to build Amber from source (exit code: {code})."
     echo "Please ensure Rust and Cargo are installed and correctly configured in your environment."
     echo "You might need to add a step like 'rustup-init.sh --profile minimal --default-toolchain stable -y' before this action."

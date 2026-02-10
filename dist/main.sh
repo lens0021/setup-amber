@@ -603,7 +603,7 @@ build_amber_from_source__169_v0() {
     local bin_path=$3
     echo "::debug::Building Amber from source in '${source_dir}'"
     echo "::debug::Building Amber with cargo in '${source_dir}'"
-    cargo -C "${source_dir}" build --release
+    cd "${source_dir}" && cargo build --release
     __status=$?
     if [ "${__status}" != 0 ]; then
     code_9="${__status}"
