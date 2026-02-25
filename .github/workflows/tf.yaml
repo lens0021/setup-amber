@@ -21,20 +21,14 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-      actions: read
-    name: Plan
-
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
       - uses: opentofu/setup-opentofu@9d84900f3238fab8cd84ce47d658d25dd008be2f # v1.0.8
-
       - run: tofu init
-
       - run: tofu plan -no-color
         id: plan
-
       - name: Comment plan
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
@@ -77,9 +71,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-
+        with:
+          persist-credentials: false
       - uses: opentofu/setup-opentofu@9d84900f3238fab8cd84ce47d658d25dd008be2f # v1.0.8
-
       - run: tofu init
-
       - run: tofu apply -auto-approve
