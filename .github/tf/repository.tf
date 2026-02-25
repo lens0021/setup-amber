@@ -23,6 +23,7 @@ resource "github_repository" "this" {
   squash_merge_commit_title   = "PR_TITLE"
   topics                      = []
   visibility                  = "public"
+  vulnerability_alerts        = true
   web_commit_signoff_required = false
 
   security_and_analysis {
