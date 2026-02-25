@@ -1,3 +1,7 @@
+# Tofu and Terraform
+.terraform
+terraform.tfstate
+
 # misc
 .DS_Store
 *.pem
