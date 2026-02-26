@@ -21,7 +21,7 @@ resource "github_repository" "this" {
   name                        = "setup-amber"
   squash_merge_commit_message = "BLANK"
   squash_merge_commit_title   = "PR_TITLE"
-  topics                      = []
+  topics                      = ["amber"]
   visibility                  = "public"
   vulnerability_alerts        = true
   web_commit_signoff_required = false
