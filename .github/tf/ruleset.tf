@@ -15,12 +15,6 @@ resource "github_repository_ruleset" "default" {
     }
   }
 
-  bypass_actors {
-    actor_id    = 2
-    actor_type  = "RepositoryRole"
-    bypass_mode = "always"
-  }
-
   rules {
     deletion                = true
     non_fast_forward        = true
