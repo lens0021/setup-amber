@@ -18,20 +18,23 @@ defaults:
 
 jobs:
   plan:
-    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
+      issues: write
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
       - uses: opentofu/setup-opentofu@9d84900f3238fab8cd84ce47d658d25dd008be2f # v1.0.8
       - run: tofu init
-      - run: tofu plan -no-color
-        id: plan
-      - name: Comment plan
+      - id: plan
+        run: tofu plan -no-color -detailed-exitcode
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - if: github.event_name == 'pull_request'
+        name: Comment plan on PR
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           PLAN_OUTPUT: ${{ steps.plan.outputs.stdout }}
@@ -65,16 +68,52 @@ jobs:
                 body: output,
               });
             }
-  
-  apply:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - if: github.event_name == 'push'
+        name: Manage drift issue
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          PLAN_EXIT_CODE: ${{ steps.plan.outputs.exitcode }}
+          PLAN_OUTPUT: ${{ steps.plan.outputs.stdout }}
         with:
-          persist-credentials: false
-      - uses: opentofu/setup-opentofu@9d84900f3238fab8cd84ce47d658d25dd008be2f # v1.0.8
-      - run: tofu init
-      - run: tofu apply -auto-approve
+          script: |
+            const issueTitle = 'OpenTofu: apply needed';
+            const hasChanges = process.env.PLAN_EXIT_CODE === '2';
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              creator: 'github-actions[bot]',
+            });
+            const existing = issues.find(i => i.title === issueTitle);
+
+            if (hasChanges) {
+              const body = `Drift detected on \`main\` at ${context.sha.substring(0, 7)}.\n\n\`\`\`\n${process.env.PLAN_OUTPUT}\n\`\`\``;
+              if (existing) {
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: existing.number,
+                  body,
+                });
+              } else {
+                await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: issueTitle,
+                  body,
+                });
+              }
+            } else if (existing) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                state: 'closed',
+                state_reason: 'completed',
+              });
+            }
+      - if: steps.plan.outputs.exitcode == 1
+        run: exit $PLAN_EXIT_CODE
+        env:
+          PLAN_EXIT_CODE: ${{ steps.plan.outputs.exitcode }}
