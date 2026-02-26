@@ -23,17 +23,7 @@ resource "github_repository" "this" {
   squash_merge_commit_title   = "PR_TITLE"
   topics                      = ["amber"]
   visibility                  = "public"
-  vulnerability_alerts        = true
   web_commit_signoff_required = false
-
-  security_and_analysis {
-    secret_scanning {
-      status = "enabled"
-    }
-    secret_scanning_push_protection {
-      status = "enabled"
-    }
-  }
 }
 
 # secrets.GITHUB_TOKEN does not have the permission for this:
