@@ -29,7 +29,7 @@ resource "github_repository_ruleset" "default" {
     non_fast_forward        = true
     required_linear_history = true
     required_signatures     = false
-    update                  = true
+    update                  = false
 
     pull_request {
       dismiss_stale_reviews_on_push     = false
