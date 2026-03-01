@@ -8,6 +8,15 @@ resource "github_repository_ruleset" "default" {
   target      = "branch"
   enforcement = "active"
 
+  dynamic "bypass_actors" {
+    for_each = var.github_actions ? [] : [true]
+    content {
+      actor_id    = 2 # maintain
+      actor_type  = "RepositoryRole"
+      bypass_mode = "always"
+    }
+  }
+
   conditions {
     ref_name {
       include = ["~DEFAULT_BRANCH", ]
