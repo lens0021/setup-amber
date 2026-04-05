@@ -22,7 +22,7 @@ See [action.yaml](action.yaml)
 ### Basic Parameters
 
 ```yaml
-- uses: lens0021/setup-amber@v1
+- uses: lens0021/setup-amber@v2
   with:
     # The Amber version to install.
     # Examples: 0.4.0-alpha, 0.5.0-alpha
@@ -49,7 +49,7 @@ See [action.yaml](action.yaml)
 When building Amber from source instead of using pre-built binaries:
 
 ```yaml
-- uses: lens0021/setup-amber@v1
+- uses: lens0021/setup-amber@v2
   with:
     # Git repository URL to clone Amber from when building from source.
     # Default: https://github.com/amber-lang/amber.git
@@ -84,7 +84,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Setup Amber
-        uses: lens0021/setup-amber@v1
+        uses: lens0021/setup-amber@v2
         with:
           amber-version: 0.4.0-alpha
 
@@ -95,7 +95,7 @@ jobs:
 **With custom cache path:**
 
 ```yaml
-- uses: lens0021/setup-amber@v1
+- uses: lens0021/setup-amber@v2
   with:
     amber-version: 0.4.0-alpha
     cache-path: /tmp/amber-cache
