@@ -11,7 +11,7 @@ This action downloads and installs the Amber compiler binary, making it availabl
 > This is a [composite action] because I want less maintaining costs.
 > There is a limitation of composite action itself:
 >
-> - Name of steps are not displayed. ([GitHub discussion](https://github.com/orgs/community/discussions/10985))
+> - Name of steps are not displayed. ([GitHub discussion](https://github.com/orgs/community/discussions/21276))
 
 ## Usage
 
